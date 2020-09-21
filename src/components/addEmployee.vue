@@ -6,7 +6,7 @@
       :lazy-validation="lazy"
     >
       <v-text-field
-        v-model="name"
+        v-model="employee.userName"
         :counter="10"
         :rules="nameRules"
         label="Username"
@@ -14,87 +14,97 @@
       ></v-text-field>
 
       <v-text-field
-        v-model="firstName"
+        v-model="employee.firstName"
         :rules="firstNameRules"
         label="First Name"
         required
       ></v-text-field>
 
       <v-text-field
-        v-model="lastName"
+        v-model="employee.lastName"
         :rules="lastNameRules"
         label="Last Name"
         required
       ></v-text-field>
 
        <v-text-field
-        v-model="contact"
+        v-model="employee.phoneNo"
         :rules="contactRules"
         label="Contact Number"
+        :counter="10"
         required
       ></v-text-field>
 
 
       <v-text-field
-        v-model="email"
+        v-model="employee.email"
         :rules="emailRules"
         label="E-mail"
         required
       ></v-text-field>
 
+      
+      <v-text-field
+              v-model="employee.passWord"
+              :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+              :rules="[rules.required, rules.min]"
+              :type="show1 ? 'text' : 'password'"
+              label="Password"
+              hint="At least 8 characters"
+              counter
+              @click:append="show1 = !show1"
+        ></v-text-field>
+        
+
        <v-text-field
-        v-model="nic"
+        v-model="employee.nic"
         :rules="nicRules"
         label="NIC"
         required
       ></v-text-field>
-
-      <v-select
-        v-model="select"
-        :items="items"
-        :rules="[v => !!v || 'Item is required']"
-        label="Item"
-        required
-      ></v-select>
-
-      <v-checkbox
-        v-model="checkbox"
-        :rules="[v => !!v || 'You must agree to continue!']"
-        label="Do you agree?"
-        required
-      ></v-checkbox>
-
-      <v-btn
-        :disabled="!valid"
-        color="success"
-        class="mr-4"
-        @click="validate"
-      >
-        Validate
-      </v-btn>
-
+      <v-row class="my-5"> 
+      <v-btn color="success" class="mr-4" @click="addChef"> Add Chef </v-btn>
+      <v-btn color="success" class="mr-4" @click="addCashier"> Add Cashier </v-btn>
+      <v-btn color="success" class="mr-4" @click="addRestManager"> Add Restaurant Manager </v-btn>
+      <v-btn color="success" class="mr-4" @click="addInvManager"> Add Inventory Manager </v-btn>
+      </v-row>
+ 
+      <v-row>
       <v-btn
         color="error"
-        class="mr-4"
         @click="reset"
+        center
+        block
       >
         Reset Form
       </v-btn>
+      </v-row>
 
-      <v-btn
-        color="warning"
-        @click="resetValidation"
-      >
-        Reset Validation
-      </v-btn>
     </v-form>
   </v-row>
 </template>
 
 <script>
+import DataService from '../services/DataService'
+
   export default {
-    data: () => ({
+    data() {
+    
+    return{
+      show1: false,
       valid: true,
+      
+      employee: {
+        id: null,
+        userName: '',
+        firstName: '',
+        lastName: '',
+        phoneNo: null,
+        email: '',
+        passWord: '',
+        nic: '',
+      },
+
       name: '',
       nameRules: [
         v => !!v || 'Username is required',
@@ -109,13 +119,13 @@
       firstName: '',
       firstNameRules: [
         v => !!v || 'First Name is required',
-        v => /.+@.+\..+/.test(v) || 'First Name must be valid',
+        
       ],
 
       lastName: '',
       lastNameRules: [
         v => !!v || 'Last Name is required',
-        v => /.+@.+\..+/.test(v) || 'Last Name must be valid',
+        
       ],
 
       contact: '',
@@ -124,28 +134,123 @@
         v =>  /^\d+$/.test(v) || 'Contact Number must be valid',
       ],
 
+      password: '',
+      rules: {
+        required: value => !!value || 'Required.',
+        min: v => v.length >= 8 || 'Min 8 characters',
+      },
 
-      select: null,
-      items: [
-        'Item 1',
-        'Item 2',
-        'Item 3',
-        'Item 4',
+      nic: '',
+      nicRules: [
+        v => !!v || 'NIC is required',
+        
       ],
-      checkbox: false,
+
       lazy: false,
-    }),
+
+    };
+  
+    },
 
     methods: {
+      addChef() {
+
+        var data = {
+             userName: this.employee.userName,
+             firstName: this.employee.firstName,
+             lastName: this.employee.lastName,
+             phoneNo: this.employee.phoneNo,
+             passWord: this.employee.passWord,
+             email: this.employee.email,
+             nic: this.employee.nic
+           };
+
+           DataService.addEmployeeChef(data)
+           .then(response => {
+           this.employee.id = response.data.id;
+           console.log(response.data);
+           this.submitted = true;
+           })
+           .catch(e => {
+           console.log(e);
+           });
+      },
+
+      addCashier() {
+
+        var data = {
+             userName: this.employee.userName,
+             firstName: this.employee.firstName,
+             lastName: this.employee.lastName,
+             phoneNo: this.employee.phoneNo,
+             email: this.employee.email,
+             nic: this.employee.nic
+           };
+
+           DataService.addEmployeeCashier(data)
+           .then(response => {
+           this.employee.id = response.data.id;
+           console.log(response.data);
+           this.submitted = true;
+           })
+           .catch(e => {
+           console.log(e);
+           });
+      },
+
+      addInvManager() {
+
+        var data = {
+             userName: this.employee.userName,
+             firstName: this.employee.firstName,
+             lastName: this.employee.lastName,
+             phoneNo: this.employee.phoneNo,
+             email: this.employee.email,
+             nic: this.employee.nic
+           };
+
+           DataService.addEmployeeInvManager(data)
+           .then(response => {
+           this.employee.id = response.data.id;
+           console.log(response.data);
+           this.submitted = true;
+           })
+           .catch(e => {
+           console.log(e);
+           });
+      },
+
+      addRestManager() {
+
+        var data = {
+             userName: this.employee.userName,
+             firstName: this.employee.firstName,
+             lastName: this.employee.lastName,
+             phoneNo: this.employee.phoneNo,
+             email: this.employee.email,
+             nic: this.employee.nic
+           };
+
+           DataService.addEmployeeRestManager(data)
+           .then(response => {
+           this.employee.id = response.data.id;
+           console.log(response.data);
+           this.submitted = true;
+           })
+           .catch(e => {
+           console.log(e);
+           });
+      },
+
       validate () {
         this.$refs.form.validate()
       },
       reset () {
         this.$refs.form.reset()
       },
-      resetValidation () {
-        this.$refs.form.resetValidation()
-      },
+      //resetValidation () {
+        //this.$refs.form.resetValidation()
+     // },
     },
   }
 
